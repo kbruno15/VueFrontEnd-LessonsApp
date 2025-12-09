@@ -208,28 +208,46 @@
     </main>
   </div>
 
-  <script>
+    <script>
+    // Base URL for the backend API 
     var API_BASE = 'http://localhost:3000';
 
     new Vue({
       el: '#app',
+
+      // APPLICATION STATE 
       data: {
+        // List of lessons loaded from the backend
         lessons: [],
+        // Items currently in the shopping cart
         cart: [],
+        // Current sort attribute for lessons
         sortAttribute: 'subject',
+        // Current sort order (ascending / descending)
         sortOrder: 'asc',
+        // Toggles between lessons list view and cart view
         showCart: false,
+        // Checkout form fields
         name: '',
         phone: '',
+        // Search bar input
         searchTerm: '',
+        // Indicates if an order is in progress
         isSubmitting: false,
+        // User-facing messages
         submitMessage: '',
         errorMessage: ''
       },
+
+      // LIFECYCLE HOOK 
       created: function () {
+        // Load lessons as soon as the Vue instance is created
         this.fetchLessons();
       },
+
+      // DERIVED VALUES
       computed: {
+        // Sorted copy of lessons based on the selected attribute and order
         sortedLessons: function () {
           var lessonsCopy = this.lessons.slice();
           var attr = this.sortAttribute;
@@ -257,19 +275,27 @@
             return 0;
           });
         },
+
+        // Total number of lessons in the cart (sum of quantities)
         cartItemCount: function () {
           return this.cart.reduce(function (total, item) {
             return total + item.quantity;
           }, 0);
         },
+
+        // Validate name: letters and spaces only
         isNameValid: function () {
           var pattern = /^[A-Za-z\s]+$/;
           return pattern.test(this.name.trim());
         },
+
+        // Validate phone: digits only
         isPhoneValid: function () {
           var pattern = /^[0-9]+$/;
           return pattern.test(this.phone.trim());
         },
+
+        // Checkout button is only enabled when form and cart are valid
         canCheckout: function () {
           return (
             this.cart.length > 0 &&
@@ -279,7 +305,10 @@
           );
         }
       },
+
+      // ====== METHODS ======
       methods: {
+        // Load all lessons from the backend
         fetchLessons: function () {
           var self = this;
           fetch(API_BASE + '/lessons')
@@ -294,10 +323,13 @@
               self.errorMessage = 'Failed to load lessons from server.';
             });
         },
+
+        // "Search as you type" – queries backend using /search
         onSearchInput: function () {
           var self = this;
 
           if (!this.searchTerm) {
+            // Empty search returns the full list of lessons
             this.fetchLessons();
             return;
           }
@@ -312,18 +344,26 @@
               self.errorMessage = 'Search request failed.';
             });
         },
+
+        // Update current sort attribute
         setSort: function (attr) {
           this.sortAttribute = attr;
         },
+
+        // Update current sort order
         setSortOrder: function (order) {
           this.sortOrder = order;
         },
+
+        // Add one lesson to the shopping cart
         addToCart: function (lesson) {
           if (lesson.space <= 0) {
             return;
           }
+          // Reduce space available on the lesson
           lesson.space -= 1;
 
+          // Either increment quantity in cart or push a new item
           var existing = this.cart.find(function (item) {
             return item._id === lesson._id;
           });
@@ -340,8 +380,9 @@
             });
           }
         },
+
+        // Remove item from cart and restore spaces
         removeFromCart: function (item, index) {
-          var self = this;
           var lesson = this.lessons.find(function (l) {
             return l._id === item._id;
           });
@@ -352,17 +393,23 @@
 
           this.cart.splice(index, 1);
         },
+
+        // Toggle between lessons page and cart page
         toggleView: function () {
           this.showCart = !this.showCart;
           this.submitMessage = '';
           this.errorMessage = '';
         },
+
+        // Helper: get current spaces left for a lesson
         lessonSpace: function (lessonId) {
           var lesson = this.lessons.find(function (l) {
             return l._id === lessonId;
           });
           return lesson ? lesson.space : 0;
         },
+
+        // Submit order to backend: POST /orders then PUT /lessons/:id
         submitOrder: function () {
           var self = this;
           if (!this.canCheckout) {
@@ -373,6 +420,7 @@
           this.submitMessage = '';
           this.errorMessage = '';
 
+          // Prepare payload in the format expected by the Express API
           var payload = {
             name: this.name.trim(),
             phone: this.phone.trim(),
@@ -384,7 +432,7 @@
             })
           };
 
-          // POST order
+          // 1) POST new order
           fetch(API_BASE + '/orders', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -397,7 +445,7 @@
               return res.json();
             })
             .then(function () {
-              // PUT updated spaces for each lesson
+              // 2) For each lesson in the cart, update the space field
               var updatePromises = self.cart.map(function (item) {
                 var lesson = self.lessons.find(function (l) {
                   return l._id === item._id;
@@ -430,5 +478,3 @@
       }
     });
   </script>
-</body>
-</html>
