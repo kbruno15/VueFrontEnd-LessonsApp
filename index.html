@@ -100,6 +100,14 @@
           </div>
         </div>
 
+        <!-- No lessons found message (after search / filter) -->
+        <div
+          v-if="!isLoading && lessons.length === 0 && !errorMessage"
+          class="empty-cart"
+        >
+          No lessons match your search.
+        </div>
+
         <!-- Lesson cards -->
         <div class="lessons-grid">
           <article
@@ -220,7 +228,7 @@
     new Vue({
       el: '#app',
 
-      // APPLICATION STATE
+      // ====== APPLICATION STATE ======
       data: {
         // List of lessons loaded from the backend
         lessons: [],
@@ -252,7 +260,7 @@
         this.fetchLessons();
       },
 
-      // ====== DERIVED VALUES ======
+      // DERIVED VALUES
       computed: {
         // Sorted copy of lessons based on the selected attribute and order
         sortedLessons: function () {
@@ -313,7 +321,7 @@
         }
       },
 
-      // METHODS 
+      // METHODS
       methods: {
         // Load all lessons from the backend
         fetchLessons: function () {
@@ -333,8 +341,8 @@
               self.errorMessage = 'Failed to load lessons from server.';
             })
             .finally(function () {
-              self.isLoading = false;
-            });
+              this.isLoading = false;
+            }.bind(this));
         },
 
         // "Search as you type" – queries backend using /search
@@ -485,8 +493,8 @@
               self.errorMessage = 'Failed to submit order. Please try again.';
             })
             .finally(function () {
-              self.isSubmitting = false;
-            });
+              this.isSubmitting = false;
+            }.bind(this));
         }
       }
     });
