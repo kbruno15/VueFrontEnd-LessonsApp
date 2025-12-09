@@ -31,6 +31,11 @@
 
       <!-- LESSONS VIEW -->
       <section v-if="!showCart" class="lessons-view">
+        <!-- Loading indicator while fetching lessons -->
+        <div v-if="isLoading" class="banner">
+          Loading lessons...
+        </div>
+
         <!-- Search -->
         <div class="toolbar">
           <input
@@ -208,14 +213,14 @@
     </main>
   </div>
 
-    <script>
-    // Base URL for the backend API 
+  <script>
+    // Base URL for the backend API
     var API_BASE = 'http://localhost:3000';
 
     new Vue({
       el: '#app',
 
-      // APPLICATION STATE 
+      // APPLICATION STATE
       data: {
         // List of lessons loaded from the backend
         lessons: [],
@@ -236,16 +241,18 @@
         isSubmitting: false,
         // User-facing messages
         submitMessage: '',
-        errorMessage: ''
+        errorMessage: '',
+        // True while lessons are being loaded from the backend
+        isLoading: false
       },
 
-      // LIFECYCLE HOOK 
+      // LIFECYCLE HOOK
       created: function () {
         // Load lessons as soon as the Vue instance is created
         this.fetchLessons();
       },
 
-      // DERIVED VALUES
+      // ====== DERIVED VALUES ======
       computed: {
         // Sorted copy of lessons based on the selected attribute and order
         sortedLessons: function () {
@@ -306,11 +313,14 @@
         }
       },
 
-      // ====== METHODS ======
+      // METHODS 
       methods: {
         // Load all lessons from the backend
         fetchLessons: function () {
           var self = this;
+          this.isLoading = true;
+          this.errorMessage = '';
+
           fetch(API_BASE + '/lessons')
             .then(function (res) {
               return res.json();
@@ -321,6 +331,9 @@
             .catch(function (err) {
               console.error(err);
               self.errorMessage = 'Failed to load lessons from server.';
+            })
+            .finally(function () {
+              self.isLoading = false;
             });
         },
 
@@ -478,3 +491,5 @@
       }
     });
   </script>
+</body>
+</html>
