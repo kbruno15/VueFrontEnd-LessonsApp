@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -13,7 +13,7 @@
 
       <button
         class="cart-toggle-btn"
-        :disabled="cart.length === 0"
+        :disabled="!showCart && cart.length === 0"
         @click="toggleView"
       >
         {{ showCart ? 'Back to Lessons' : 'Cart (' + cartItemCount + ')' }}
@@ -103,7 +103,6 @@
             class="lesson-card"
           >
             <div class="lesson-icon">
-              <!-- Simple icon based on topic initial -->
               <span>{{ lesson.topic.charAt(0).toUpperCase() }}</span>
             </div>
 
