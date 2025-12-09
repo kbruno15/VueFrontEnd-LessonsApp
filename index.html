@@ -173,6 +173,12 @@
           </article>
         </div>
 
+        <!-- Cart summary: total items and total price -->
+        <div v-if="cart.length > 0" class="cart-summary">
+          <p><strong>Total items:</strong> {{ cartItemCount }}</p>
+          <p><strong>Total price:</strong> £{{ cartTotalPrice }}</p>
+        </div>
+
         <!-- Checkout -->
         <section class="checkout-section">
           <h2 class="section-title">Checkout</h2>
@@ -254,13 +260,13 @@
         isLoading: false
       },
 
-      // LIFECYCLE HOOK
+      // LIFECYCLE HOOK 
       created: function () {
         // Load lessons as soon as the Vue instance is created
         this.fetchLessons();
       },
 
-      // DERIVED VALUES
+      // DERIVED VALUES 
       computed: {
         // Sorted copy of lessons based on the selected attribute and order
         sortedLessons: function () {
@@ -298,6 +304,13 @@
           }, 0);
         },
 
+        // Total price of all cart items
+        cartTotalPrice: function () {
+          return this.cart.reduce(function (total, item) {
+            return total + item.price * item.quantity;
+          }, 0);
+        },
+
         // Validate name: letters and spaces only
         isNameValid: function () {
           var pattern = /^[A-Za-z\s]+$/;
@@ -321,7 +334,7 @@
         }
       },
 
-      // METHODS
+      // METHODS 
       methods: {
         // Load all lessons from the backend
         fetchLessons: function () {
@@ -341,8 +354,8 @@
               self.errorMessage = 'Failed to load lessons from server.';
             })
             .finally(function () {
-              this.isLoading = false;
-            }.bind(this));
+              self.isLoading = false;
+            });
         },
 
         // "Search as you type" – queries backend using /search
@@ -493,8 +506,8 @@
               self.errorMessage = 'Failed to submit order. Please try again.';
             })
             .finally(function () {
-              this.isSubmitting = false;
-            }.bind(this));
+              self.isSubmitting = false;
+            });
         }
       }
     });

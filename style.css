@@ -284,6 +284,18 @@ button:disabled {
   min-width: 120px;
 }
 
+/* Cart summary */
+
+.cart-summary {
+  margin-top: 6px;
+  font-size: 14px;
+  color: #333;
+}
+
+.cart-summary p {
+  margin: 2px 0;
+}
+
 /* Responsive */
 
 @media (max-width: 640px) {
