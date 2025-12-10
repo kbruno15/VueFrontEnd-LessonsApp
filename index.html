@@ -120,7 +120,7 @@
               <img
                 v-if="lesson.image"
                 class="lesson-img"
-                :src="API_BASE + '/images/' + lesson.image"
+                :src="buildImageUrl(lesson.image)"
                 :alt="lesson.topic + ' icon'"
               >
               <span v-else>{{ lesson.topic.charAt(0).toUpperCase() }}</span>
@@ -165,7 +165,7 @@
               <img
                 v-if="item.image"
                 class="lesson-img"
-                :src="API_BASE + '/images/' + item.image"
+                :src="buildImageUrl(item.image)"
                 :alt="item.topic + ' icon'"
               >
               <span v-else>{{ item.topic.charAt(0).toUpperCase() }}</span>
@@ -350,6 +350,12 @@
 
       // METHODS 
       methods: {
+        // Helper for building image URL from filename
+        buildImageUrl: function (filename) {
+          if (!filename) return '';
+          return API_BASE + '/images/' + filename;
+        },
+
         // Load all lessons from the backend
         fetchLessons: function () {
           var self = this;
