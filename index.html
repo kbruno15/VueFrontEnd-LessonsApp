@@ -229,7 +229,7 @@
 
   <script>
     // Base URL for the backend API
-    var API_BASE = 'http://localhost:3000';
+    var API_BASE = 'https://lessons-backend-46m7.onrender.com';
 
     new Vue({
       el: '#app',
@@ -335,49 +335,60 @@
       },
 
       // METHODS 
-      methods: {
-        // Load all lessons from the backend
-        fetchLessons: function () {
-          var self = this;
-          this.isLoading = true;
-          this.errorMessage = '';
+    methods: {
+  // Load all lessons from the backend
+  fetchLessons: function () {
+    var self = this;
+    this.isLoading = true;
+    this.errorMessage = '';
 
-          fetch(API_BASE + '/lessons')
-            .then(function (res) {
-              return res.json();
-            })
-            .then(function (data) {
-              self.lessons = data;
-            })
-            .catch(function (err) {
-              console.error(err);
-              self.errorMessage = 'Failed to load lessons from server.';
-            })
-            .finally(function () {
-              self.isLoading = false;
-            });
-        },
+    fetch(API_BASE + '/lessons')
+      .then(function (res) {
+        console.log('GET /lessons status:', res.status);
+        if (!res.ok) {
+          // Throw so we end up in catch()
+          throw new Error('HTTP ' + res.status + ' fetching /lessons');
+        }
+        return res.json();
+      })
+      .then(function (data) {
+        self.lessons = data;
+      })
+      .catch(function (err) {
+        console.error('fetchLessons error:', err);
+        self.errorMessage = 'Failed to load lessons from server.';
+      })
+      .finally(function () {
+        self.isLoading = false;
+      });
+  },
 
-        // "Search as you type" – queries backend using /search
-        onSearchInput: function () {
-          var self = this;
+  // "Search as you type" – queries backend using /search
+  onSearchInput: function () {
+    var self = this;
 
-          if (!this.searchTerm) {
-            // Empty search returns the full list of lessons
-            this.fetchLessons();
-            return;
-          }
+    if (!this.searchTerm) {
+      // Empty search returns the full list of lessons
+      this.fetchLessons();
+      return;
+    }
 
-          fetch(API_BASE + '/search?q=' + encodeURIComponent(this.searchTerm))
-            .then(function (res) { return res.json(); })
-            .then(function (data) {
-              self.lessons = data;
-            })
-            .catch(function (err) {
-              console.error(err);
-              self.errorMessage = 'Search request failed.';
-            });
-        },
+    fetch(API_BASE + '/search?q=' + encodeURIComponent(this.searchTerm))
+      .then(function (res) {
+        console.log('GET /search status:', res.status);
+        if (!res.ok) {
+          throw new Error('HTTP ' + res.status + ' fetching /search');
+        }
+        return res.json();
+      })
+      .then(function (data) {
+        self.lessons = data;
+      })
+      .catch(function (err) {
+        console.error('onSearchInput error:', err);
+        self.errorMessage = 'Search request failed.';
+      });
+  },
 
         // Update current sort attribute
         setSort: function (attr) {
