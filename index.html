@@ -116,7 +116,14 @@
             class="lesson-card"
           >
             <div class="lesson-icon">
-              <span>{{ lesson.topic.charAt(0).toUpperCase() }}</span>
+              <!-- Show lesson image if available, otherwise initial letter -->
+              <img
+                v-if="lesson.image"
+                class="lesson-img"
+                :src="API_BASE + '/images/' + lesson.image"
+                :alt="lesson.topic + ' icon'"
+              >
+              <span v-else>{{ lesson.topic.charAt(0).toUpperCase() }}</span>
             </div>
 
             <div class="lesson-body">
@@ -154,7 +161,14 @@
             class="lesson-card"
           >
             <div class="lesson-icon">
-              <span>{{ item.topic.charAt(0).toUpperCase() }}</span>
+              <!-- Use the image stored on the cart item -->
+              <img
+                v-if="item.image"
+                class="lesson-img"
+                :src="API_BASE + '/images/' + item.image"
+                :alt="item.topic + ' icon'"
+              >
+              <span v-else>{{ item.topic.charAt(0).toUpperCase() }}</span>
             </div>
 
             <div class="lesson-body">
@@ -335,60 +349,60 @@
       },
 
       // METHODS 
-    methods: {
-  // Load all lessons from the backend
-  fetchLessons: function () {
-    var self = this;
-    this.isLoading = true;
-    this.errorMessage = '';
+      methods: {
+        // Load all lessons from the backend
+        fetchLessons: function () {
+          var self = this;
+          this.isLoading = true;
+          this.errorMessage = '';
 
-    fetch(API_BASE + '/lessons')
-      .then(function (res) {
-        console.log('GET /lessons status:', res.status);
-        if (!res.ok) {
-          // Throw so we end up in catch()
-          throw new Error('HTTP ' + res.status + ' fetching /lessons');
-        }
-        return res.json();
-      })
-      .then(function (data) {
-        self.lessons = data;
-      })
-      .catch(function (err) {
-        console.error('fetchLessons error:', err);
-        self.errorMessage = 'Failed to load lessons from server.';
-      })
-      .finally(function () {
-        self.isLoading = false;
-      });
-  },
+          fetch(API_BASE + '/lessons')
+            .then(function (res) {
+              console.log('GET /lessons status:', res.status);
+              if (!res.ok) {
+                // Throw so we end up in catch()
+                throw new Error('HTTP ' + res.status + ' fetching /lessons');
+              }
+              return res.json();
+            })
+            .then(function (data) {
+              self.lessons = data;
+            })
+            .catch(function (err) {
+              console.error('fetchLessons error:', err);
+              self.errorMessage = 'Failed to load lessons from server.';
+            })
+            .finally(function () {
+              self.isLoading = false;
+            });
+        },
 
-  // "Search as you type" – queries backend using /search
-  onSearchInput: function () {
-    var self = this;
+        // "Search as you type" – queries backend using /search
+        onSearchInput: function () {
+          var self = this;
 
-    if (!this.searchTerm) {
-      // Empty search returns the full list of lessons
-      this.fetchLessons();
-      return;
-    }
+          if (!this.searchTerm) {
+            // Empty search returns the full list of lessons
+            this.fetchLessons();
+            return;
+          }
 
-    fetch(API_BASE + '/search?q=' + encodeURIComponent(this.searchTerm))
-      .then(function (res) {
-        console.log('GET /search status:', res.status);
-        if (!res.ok) {
-          throw new Error('HTTP ' + res.status + ' fetching /search');
-        }
-        return res.json();
-      })
-      .then(function (data) {
-        self.lessons = data;
-      })
-      .catch(function (err) {
-        console.error('onSearchInput error:', err);
-        self.errorMessage = 'Search request failed.';
-      });
-  },
+          fetch(API_BASE + '/search?q=' + encodeURIComponent(this.searchTerm))
+            .then(function (res) {
+              console.log('GET /search status:', res.status);
+              if (!res.ok) {
+                throw new Error('HTTP ' + res.status + ' fetching /search');
+              }
+              return res.json();
+            })
+            .then(function (data) {
+              self.lessons = data;
+            })
+            .catch(function (err) {
+              console.error('onSearchInput error:', err);
+              self.errorMessage = 'Search request failed.';
+            });
+        },
 
         // Update current sort attribute
         setSort: function (attr) {
@@ -421,7 +435,8 @@
               topic: lesson.topic,
               location: lesson.location,
               price: lesson.price,
-              quantity: 1
+              quantity: 1,
+              image: lesson.image || null
             });
           }
         },
